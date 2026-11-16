@@ -86,6 +86,13 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
   {
+    path: 'person/:id',
+    loadComponent: () => import('./pages/person/person').then((m) => m.PersonPage),
+    title: 'CHELIFTV - Elenco',
+    canActivate: [authGuard, permissionGuard],
+    data: { permission: 'watch' },
+  },
+  {
     path: 'about',
     loadComponent: () => import('./pages/about/about').then((m) => m.About),
     title: 'CHELIFTV - Sobre',

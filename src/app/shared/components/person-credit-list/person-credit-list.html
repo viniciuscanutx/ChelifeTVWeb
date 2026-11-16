@@ -1,0 +1,36 @@
+<section class="credit-list-section" [attr.aria-labelledby]="headingId()">
+  <h2 class="section-title" [id]="headingId()">{{ heading() }}</h2>
+  <ul class="credit-list">
+    @for (credit of credits(); track credit.mediaType + (credit.catalogId ?? credit.tmdbId)) {
+    <li class="credit-item">
+      @if (credit.catalogId) {
+      <a class="credit-card" [routerLink]="['/watch', credit.mediaType, credit.catalogId]"
+        [attr.aria-label]="'Assistir ' + credit.title">
+        <ng-container *ngTemplateOutlet="creditCard; context: { $implicit: credit }" />
+      </a>
+      } @else {
+      <div class="credit-card">
+        <ng-container *ngTemplateOutlet="creditCard; context: { $implicit: credit }" />
+      </div>
+      }
+    </li>
+    }
+  </ul>
+</section>
+
+<ng-template #creditCard let-credit>
+  <span class="credit-poster">
+    @if (credit.posterURL) {
+    <img [src]="credit.posterURL" [alt]="credit.title" loading="lazy" width="160" height="240" />
+    } @else {
+    <span class="credit-poster-fallback" aria-hidden="true"><i class="bi bi-film"></i></span>
+    }
+    @if (showCatalogBadge() && credit.catalogId) {
+    <span class="credit-badge">No catálogo</span>
+    }
+  </span>
+  <span class="credit-title">{{ credit.title }}</span>
+  <span class="credit-meta">
+    {{ credit.year ?? '' }}{{ credit.year && creditRole(credit) ? ' • ' : '' }}{{ creditRole(credit) ?? '' }}
+  </span>
+</ng-template>

@@ -17,6 +17,8 @@ import type {
   VideoSource,
   ChannelResponse,
   ChannelCategoryGroup,
+  CreditsResponse,
+  PersonResponse,
 } from './content-api.types';
 
 @Injectable({ providedIn: 'root' })
@@ -293,6 +295,15 @@ export class ContentApiService {
 
   getMoviesRecommended(movieId: string): Observable<MovieResponse[]> {
     return this.http.get<MovieResponse[]>(`${this.base}/movies/${movieId}/recommended`);
+  }
+
+  getCredits(contentType: 'movie' | 'series', contentId: string): Observable<CreditsResponse> {
+    const segment = contentType === 'series' ? 'series' : 'movies';
+    return this.http.get<CreditsResponse>(`${this.base}/${segment}/${contentId}/credits`);
+  }
+
+  getPerson(personId: number): Observable<PersonResponse> {
+    return this.http.get<PersonResponse>(`${this.base}/people/${personId}`);
   }
 
   getSeriesRecommended(seriesId: string): Observable<SeriesSummaryResponse[]> {

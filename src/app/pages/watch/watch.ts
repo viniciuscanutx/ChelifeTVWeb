@@ -23,6 +23,19 @@ import { VideoPlayerModal } from '../../shared/components/video-player-modal/vid
 import { WatchProgressService } from '../../shared/services/watch-progress.service';
 import { FavoriteButton } from '../../shared/components/favorite-button/favorite-button';
 import { MovieReviews } from '../../shared/components/movie-reviews/movie-reviews';
+import { CreditsList } from '../../shared/components/credits-list/credits-list';
+
+type WatchTabId = 'details' | 'credits';
+
+interface WatchTab {
+  id: WatchTabId;
+  label: string;
+}
+
+const WATCH_TABS: readonly WatchTab[] = [
+  { id: 'details', label: 'Detalhes' },
+  { id: 'credits', label: 'Elenco' },
+];
 
 const PROGRESS_SAVE_INTERVAL_MS = 15000;
 const PROGRESS_MIN_CURRENT_TIME = 5;
@@ -79,7 +92,7 @@ const PARENTAL_BADGES: Record<string, ParentalBadge> = {
 
 @Component({
   selector: 'app-watch',
-  imports: [RouterLink, VideoPlayerModal, MediaCarousel, FavoriteButton, MovieReviews],
+  imports: [RouterLink, VideoPlayerModal, MediaCarousel, FavoriteButton, MovieReviews, CreditsList],
   templateUrl: './watch.html',
   styleUrls: ['./watch.css', './watch-episodes.css', './watch-motion.css'],
 })
@@ -127,6 +140,11 @@ export class Watch implements AfterViewInit, OnDestroy {
 
   readonly moreMenuOpen = signal<boolean>(false);
   readonly detailsExpanded = signal<boolean>(true);
+
+  readonly tabs = WATCH_TABS;
+  readonly activeTab = signal<WatchTabId>('details');
+  readonly creditsTabVisited = signal(false);
+  private readonly itemId = computed(() => this.item()?.id ?? null);
 
   private readonly reviewsSectionRef = viewChild<ElementRef<HTMLElement>>('reviewsSection');
   /** Esconde o FAB de avaliações quando a seção já está visível na tela. */
@@ -576,6 +594,13 @@ export class Watch implements AfterViewInit, OnDestroy {
   }
 
   constructor() {
+    // Outro título volta para a aba Detalhes
+    effect(() => {
+      this.itemId();
+      this.activeTab.set('details');
+      this.creditsTabVisited.set(false);
+    });
+
     effect((onCleanup) => {
       const section = this.reviewsSectionRef()?.nativeElement;
       if (!section) return;
@@ -675,7 +700,32 @@ export class Watch implements AfterViewInit, OnDestroy {
     this.detailsExpanded.update((open) => !open);
   }
 
+  selectTab(tab: WatchTabId): void {
+    this.activeTab.set(tab);
+    if (tab === 'credits') this.creditsTabVisited.set(true);
+  }
+
+  // Setas, Home e End trocam de aba (padrão WAI-ARIA de tabs)
+  onTabKeydown(event: KeyboardEvent): void {
+    const ids = this.tabs.map((tab) => tab.id);
+    const current = ids.indexOf(this.activeTab());
+    const targets: Record<string, number> = { ArrowRight: current + 1, ArrowLeft: current - 1, Home: 0, End: ids.length - 1 };
+    const target = targets[event.key];
+    if (target === undefined) return;
+
+    event.preventDefault();
+    const next = ids[(target + ids.length) % ids.length];
+    this.selectTab(next);
+    document.getElementById(`watch-tab-${next}`)?.focus();
+  }
+
   scrollToReviews(): void {
+    if (this.activeTab() !== 'details') {
+      this.selectTab('details');
+      afterNextRender(() => this.scrollToReviews(), { injector: this.injector });
+      return;
+    }
+
     const section = this.reviewsSectionRef()?.nativeElement;
     if (!section) return;
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;

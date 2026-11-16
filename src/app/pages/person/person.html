@@ -1,0 +1,72 @@
+<main class="person-page animate-page-enter">
+  @if (loading()) {
+  <div class="page-loading-wrapper" role="status">
+    <div class="spinner-purple"></div>
+    <p>Carregando...</p>
+  </div>
+  } @else if (error() || !person()) {
+  <div class="person-state" role="alert">
+    <p>Não foi possível carregar esta pessoa.</p>
+    <a class="person-back" routerLink="/">Voltar para o início</a>
+  </div>
+  } @else if (person(); as p) {
+  <header class="person-header">
+    @if (p.profileURL && !photoFailed()) {
+    <img class="person-photo" [src]="p.profileURL" [alt]="p.name" width="240" height="360"
+      (error)="photoFailed.set(true)" />
+    } @else {
+    <span class="person-photo person-photo--initials" aria-hidden="true">{{ initials(p.name) }}</span>
+    }
+
+    <div class="person-info">
+      <h1 class="person-name">{{ p.name }}</h1>
+
+      <dl class="person-facts">
+        @if (departmentLabel()) {
+        <div class="person-fact">
+          <dt>Conhecido por</dt>
+          <dd>{{ departmentLabel() }}</dd>
+        </div>
+        }
+        @if (birthLabel()) {
+        <div class="person-fact">
+          <dt>Nascimento</dt>
+          <dd>{{ birthLabel() }}</dd>
+        </div>
+        }
+        @if (deathLabel()) {
+        <div class="person-fact">
+          <dt>Falecimento</dt>
+          <dd>{{ deathLabel() }}</dd>
+        </div>
+        }
+      </dl>
+
+      <section class="person-bio" aria-labelledby="person-bio-heading">
+        <h2 class="section-title" id="person-bio-heading">Biografia</h2>
+        @if (p.biography) {
+        <p id="person-bio-text" class="person-bio-text"
+          [class.person-bio-text--clamped]="isLongBiography() && !biographyExpanded()">{{ p.biography }}</p>
+        @if (isLongBiography()) {
+        <button type="button" class="person-bio-toggle" (click)="toggleBiography()"
+          [attr.aria-expanded]="biographyExpanded()" aria-controls="person-bio-text">
+          {{ biographyExpanded() ? 'Ler menos' : 'Ler mais' }}
+        </button>
+        }
+        } @else {
+        <p class="person-muted">Biografia não disponível.</p>
+        }
+      </section>
+    </div>
+  </header>
+
+  @if (p.knownFor.length > 0) {
+  <app-person-credit-list heading="Mais conhecidos" headingId="known-for-heading" [credits]="p.knownFor" />
+  }
+
+  @if (p.inCatalog.length > 0) {
+  <app-person-credit-list heading="Disponível no ChelifeTV" headingId="in-catalog-heading" [credits]="p.inCatalog"
+    [showCatalogBadge]="false" />
+  }
+  }
+</main>

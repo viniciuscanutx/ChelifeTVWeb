@@ -12,6 +12,7 @@ export interface MediaItem {
   overview: string;
   genres: string[];
   highQuality?: boolean;
+  logoUrl?: string | null;
 }
 
 @Component({

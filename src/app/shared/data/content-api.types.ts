@@ -23,6 +23,50 @@ export interface MovieResponse {
   highQuality?: boolean;
 }
 
+export interface CastMemberResponse {
+  personId?: number | null;
+  name: string;
+  character?: string | null;
+  profileURL?: string | null;
+}
+
+export interface CrewMemberResponse {
+  personId?: number | null;
+  name: string;
+  jobs: string[];
+  profileURL?: string | null;
+}
+
+export interface CreditsResponse {
+  cast: CastMemberResponse[];
+  crew: CrewMemberResponse[];
+}
+
+export interface PersonCreditResponse {
+  tmdbId: number;
+  mediaType: 'movie' | 'series';
+  title: string;
+  year?: number | null;
+  posterURL?: string | null;
+  character?: string | null;
+  job?: string | null;
+  /** Id do título no catálogo, quando ele está cadastrado no site. */
+  catalogId?: string | null;
+}
+
+export interface PersonResponse {
+  personId: number;
+  name: string;
+  biography?: string | null;
+  birthday?: string | null;
+  deathday?: string | null;
+  placeOfBirth?: string | null;
+  profileURL?: string | null;
+  knownForDepartment?: string | null;
+  knownFor: PersonCreditResponse[];
+  inCatalog: PersonCreditResponse[];
+}
+
 export interface SeriesSummaryResponse {
   id: string;
   title: string;

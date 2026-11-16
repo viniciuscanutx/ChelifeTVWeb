@@ -1,0 +1,67 @@
+@if (loading()) {
+<section class="credits-section" aria-busy="true" aria-label="Carregando elenco">
+  <ul class="people-grid" aria-hidden="true">
+    @for (placeholder of skeletonItems; track placeholder) {
+    <li class="person person--skeleton">
+      <span class="person-photo"></span>
+      <span class="skeleton-line"></span>
+      <span class="skeleton-line skeleton-line--short"></span>
+    </li>
+    }
+  </ul>
+</section>
+} @else if (credits().cast.length === 0 && credits().crew.length === 0) {
+<p class="credits-empty" role="status">Elenco não disponível para este título.</p>
+} @else {
+@if (credits().cast.length > 0) {
+<section class="credits-section" aria-labelledby="credits-cast-heading">
+  <h2 class="section-title" id="credits-cast-heading">Elenco</h2>
+  <ul class="people-grid">
+    @for (member of credits().cast; track (member.personId ?? member.name) + (member.character ?? '')) {
+    <li>
+      <ng-container
+        *ngTemplateOutlet="personCard; context: { personId: member.personId, name: member.name, photo: member.profileURL, role: member.character }" />
+    </li>
+    }
+  </ul>
+</section>
+}
+
+@if (credits().crew.length > 0) {
+<section class="credits-section" aria-labelledby="credits-crew-heading">
+  <h2 class="section-title" id="credits-crew-heading">Equipe técnica</h2>
+  <ul class="people-grid">
+    @for (member of credits().crew; track member.personId ?? member.name) {
+    <li>
+      <ng-container
+        *ngTemplateOutlet="personCard; context: { personId: member.personId, name: member.name, photo: member.profileURL, role: formatCrewJobs(member.jobs) }" />
+    </li>
+    }
+  </ul>
+</section>
+}
+}
+
+<ng-template #personCard let-personId="personId" let-name="name" let-photo="photo" let-role="role">
+  @if (personId) {
+  <a class="person person--link" [routerLink]="['/person', personId]">
+    <ng-container *ngTemplateOutlet="personContent; context: { name: name, photo: photo, role: role }" />
+  </a>
+  } @else {
+  <div class="person">
+    <ng-container *ngTemplateOutlet="personContent; context: { name: name, photo: photo, role: role }" />
+  </div>
+  }
+</ng-template>
+
+<ng-template #personContent let-name="name" let-photo="photo" let-role="role">
+  @if (photo) {
+  <img class="person-photo" [src]="photo" [alt]="name" loading="lazy" width="120" height="120" />
+  } @else {
+  <span class="person-photo person-photo--initials" aria-hidden="true">{{ initials(name) }}</span>
+  }
+  <span class="person-name">{{ name }}</span>
+  @if (role) {
+  <span class="person-role">{{ role }}</span>
+  }
+</ng-template>

@@ -98,6 +98,20 @@
 
   <div class="content-overlay">
 
+    <div class="watch-tabs" role="tablist" aria-label="Seções do título" (keydown)="onTabKeydown($event)">
+      @for (tab of tabs; track tab.id) {
+      <button type="button" class="watch-tab" role="tab" [id]="'watch-tab-' + tab.id"
+        [class.watch-tab--active]="activeTab() === tab.id" [attr.aria-selected]="activeTab() === tab.id"
+        [attr.aria-controls]="'watch-panel-' + tab.id" [attr.tabindex]="activeTab() === tab.id ? 0 : -1"
+        (click)="selectTab(tab.id)">
+        {{ tab.label }}
+      </button>
+      }
+    </div>
+
+    <div id="watch-panel-details" role="tabpanel" aria-labelledby="watch-tab-details"
+      [hidden]="activeTab() !== 'details'">
+
     @if (content.type === 'series') {
     <section class="page-section episodes-section" aria-labelledby="episodes-heading">
       <div class="episodes-header">
@@ -227,7 +241,6 @@
     </section>
     }
 
-
     @if (parentalBadge(); as badge) {
     <section class="page-section">
       <h2 class="section-title">Indicação Parental</h2>
@@ -298,9 +311,18 @@
     <section class="page-section reviews-section" #reviewsSection id="avaliacoes" tabindex="-1" aria-label="Avaliações">
       <app-movie-reviews [movieId]="content.id" [contentType]="content.type === 'series' ? 'series' : 'movie'" />
     </section>
+    </div>
+
+    <!-- Créditos só carregam quando a aba é aberta pela primeira vez -->
+    @if (creditsTabVisited()) {
+    <div id="watch-panel-credits" role="tabpanel" aria-labelledby="watch-tab-credits"
+      [hidden]="activeTab() !== 'credits'">
+      <app-credits-list [contentId]="content.id" [contentType]="content.type" />
+    </div>
+    }
   </div>
 
-  @if (recommended().length > 0) {
+  @if (activeTab() === 'details' && recommended().length > 0) {
     @defer (on viewport) {
       <app-media-carousel title="Recomendados para você" icon="bi-collection-play" [items]="recommended()" />
     } @placeholder {

@@ -1,8 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { MediaCard, MediaItem } from '../../shared/components/media-card/media-card';
+import { MediaItem } from '../../shared/components/media-card/media-card';
+import { MediaCarousel } from '../../shared/components/media-carousel/media-carousel';
 import { FilterBar, FilterOption } from '../../shared/components/filter-bar/filter-bar';
 import { ContentApiService } from '../../shared/data/content-api.service';
 import { seriesToMediaItem } from '../../shared/data/content-api.mapper';
+import { CategoryGroup, groupByPrimaryCategory } from '../../shared/data/category-groups';
 import { capitalizeFirstLetter } from '../../utils/utils';
 import { catchError, of } from 'rxjs';
 
@@ -14,7 +16,7 @@ const SORT_OPTIONS: FilterOption[] = [
 
 @Component({
   selector: 'app-series',
-  imports: [MediaCard, FilterBar],
+  imports: [MediaCarousel, FilterBar],
   templateUrl: './series.html',
   styleUrl: './series.css',
 })
@@ -53,6 +55,16 @@ export class SeriesPage {
       return b.year - a.year;
     });
   });
+
+  // Com um gênero escolhido, mostra todos dele numa fileira só
+  readonly categoryGroups = computed<CategoryGroup[]>(() => {
+    const list = this.filteredSeries();
+    const cat = this.selectedCategory();
+    if (cat === 'all') return groupByPrimaryCategory(list);
+    return list.length > 0 ? [{ category: cat, items: list }] : [];
+  });
+
+  readonly capitalizeFirstLetter = capitalizeFirstLetter;
 
   constructor() {
     this.api.getSeries(60).pipe(catchError(() => of([]))).subscribe((series) => {

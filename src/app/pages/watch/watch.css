@@ -104,6 +104,51 @@
   z-index: 2;
 }
 
+/* Abas Detalhes / Elenco */
+.watch-tabs {
+  display: flex;
+  gap: 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  margin-bottom: 8px;
+}
+
+.watch-tab {
+  position: relative;
+  padding: 14px 0;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.watch-tab:hover {
+  color: var(--color-text);
+}
+
+.watch-tab:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.watch-tab--active {
+  color: var(--color-text);
+}
+
+.watch-tab--active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background-color: var(--color-accent);
+}
+
 .genres-row {
   display: flex;
   flex-wrap: wrap;

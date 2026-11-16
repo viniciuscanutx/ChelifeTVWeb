@@ -26,12 +26,8 @@
     </div>
   }
   @else {
-    <div class="catalog-grid">
-      @for (item of filteredMovies(); track item.id) {
-        <div class="grid-item">
-          <app-media-card [item]="item" />
-        </div>
-      }
-    </div>
+    @for (group of categoryGroups(); track group.category) {
+      <app-media-carousel [title]="capitalizeFirstLetter(group.category)" icon="bi-film" [items]="group.items" />
+    }
   }
 </main>

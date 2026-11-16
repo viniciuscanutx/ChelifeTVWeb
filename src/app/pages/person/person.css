@@ -1,0 +1,149 @@
+.person-page {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  padding: 32px 4% 60px;
+}
+
+.person-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 40vh;
+  color: var(--color-text-secondary);
+}
+
+.person-back {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.person-header {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+  margin-bottom: 40px;
+}
+
+.person-photo {
+  flex: 0 0 240px;
+  width: 240px;
+  height: 360px;
+  border-radius: 16px;
+  object-fit: cover;
+  background-color: var(--color-surface);
+}
+
+.person-photo--initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  font-weight: 800;
+  color: var(--color-text-secondary);
+}
+
+.person-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.person-name {
+  font-size: clamp(30px, 4vw, 46px);
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 20px;
+}
+
+.person-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 40px;
+  margin: 0 0 28px;
+}
+
+.person-fact dt {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.person-fact dd {
+  margin: 0;
+  font-size: 15px;
+  color: var(--color-text);
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 14px;
+}
+
+.person-bio-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  white-space: pre-line;
+  max-width: 900px;
+}
+
+.person-bio-text--clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.person-bio-toggle {
+  margin-top: 10px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--color-accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.person-bio-toggle:hover {
+  color: var(--color-accent-hover);
+}
+
+.person-bio-toggle:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+.person-muted {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 768px) {
+  .person-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    text-align: center;
+  }
+
+  .person-photo {
+    flex-basis: auto;
+    width: 180px;
+    height: 270px;
+  }
+
+  .person-facts {
+    justify-content: center;
+  }
+
+  .person-bio-text {
+    text-align: left;
+  }
+}

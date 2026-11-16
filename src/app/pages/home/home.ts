@@ -38,6 +38,12 @@ export class Home {
 
   readonly hasData = computed(() => this.heroItem() !== null);
 
+  // Logo que falhou ao carregar volta para o título em texto
+  readonly heroLogoFailed = signal(false);
+  readonly heroLogoUrl = computed(() =>
+    this.heroLogoFailed() ? null : this.api.resolveMediaUrl(this.heroItem()?.logoUrl),
+  );
+
   constructor() {
     forkJoin({
       home: this.api.getHome().pipe(catchError(() => of(null))),

@@ -105,6 +105,23 @@
   overflow: hidden;
 }
 
+.hero-title--logo {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 24px;
+}
+
+.hero-logo {
+  display: block;
+  max-width: min(60%, 520px);
+  max-height: 150px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  object-position: left bottom;
+  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.6));
+}
+
 .hero-meta {
   display: flex;
   align-items: center;
@@ -426,6 +443,11 @@
 
   .hero-title {
     font-size: 32px;
+  }
+
+  .hero-logo {
+    max-width: min(75%, 320px);
+    max-height: 110px;
   }
 
   .hero-overview {
