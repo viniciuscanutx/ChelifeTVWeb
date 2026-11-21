@@ -67,7 +67,8 @@ export class Movies {
   readonly capitalizeFirstLetter = capitalizeFirstLetter;
 
   constructor() {
-    this.api.getMovies(100).pipe(catchError(() => of([]))).subscribe((movies) => {
+    // limit 0 = catálogo inteiro (o CMS não aplica Limit)
+    this.api.getMovies(0).pipe(catchError(() => of([]))).subscribe((movies) => {
       const mapped = movies.map(toMediaItem);
       this.allMovies.set(mapped);
       this.loading.set(false);

@@ -14,6 +14,23 @@ interface CategoryRail {
   items: MediaItem[];
 }
 
+const RAIL_FETCH_SIZE = 40;
+const RAIL_DISPLAY_SIZE = 15;
+
+// Cada título fica só na primeira fileira em que aparece (filmes e séries separados pelo type)
+function keepFirstAppearance(rails: CategoryRail[]): CategoryRail[] {
+  return rails.reduce<{ seen: Set<string>; result: CategoryRail[] }>(
+    ({ seen, result }, rail) => {
+      const items = rail.items
+        .filter((item) => !seen.has(`${item.type}:${item.id}`))
+        .slice(0, RAIL_DISPLAY_SIZE);
+      const nextSeen = new Set([...seen, ...items.map((item) => `${item.type}:${item.id}`)]);
+      return { seen: nextSeen, result: [...result, { ...rail, items }] };
+    },
+    { seen: new Set<string>(), result: [] },
+  ).result;
+}
+
 @Component({
   selector: 'app-home',
   imports: [MediaCarousel, RouterLink],
@@ -77,7 +94,7 @@ export class Home {
 
   private loadCategoryRails(movieCategories: string[], seriesCategories: string[]): void {
     const movieCalls = movieCategories.map((cat) =>
-      this.api.getMoviesByCategory(cat, 1, 15).pipe(
+      this.api.getMoviesByCategory(cat, 1, RAIL_FETCH_SIZE).pipe(
         map((items): CategoryRail => ({
           title: capitalizeFirstLetter(cat),
           icon: 'bi-film',
@@ -88,7 +105,7 @@ export class Home {
     );
 
     const seriesCalls = seriesCategories.map((cat) =>
-      this.api.getSeriesByCategory(cat, 1, 15).pipe(
+      this.api.getSeriesByCategory(cat, 1, RAIL_FETCH_SIZE).pipe(
         map((items): CategoryRail => ({
           title: capitalizeFirstLetter(cat),
           icon: 'bi-tv',
@@ -102,9 +119,8 @@ export class Home {
     if (calls.length === 0) return;
 
     forkJoin(calls).subscribe((rails) => {
-      this.categoryRails.set(
-        rails.filter((r): r is CategoryRail => !!r && r.items.length > 0),
-      );
+      const loadedRails = rails.filter((r): r is CategoryRail => !!r);
+      this.categoryRails.set(keepFirstAppearance(loadedRails).filter((r) => r.items.length > 0));
     });
   }
 
