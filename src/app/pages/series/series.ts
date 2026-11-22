@@ -67,7 +67,7 @@ export class SeriesPage {
   readonly capitalizeFirstLetter = capitalizeFirstLetter;
 
   constructor() {
-    this.api.getSeries(60).pipe(catchError(() => of([]))).subscribe((series) => {
+    this.api.getSeries(500).pipe(catchError(() => of([]))).subscribe((series) => {
       const mapped = series.map(seriesToMediaItem);
       this.allSeries.set(mapped);
       this.loading.set(false);
