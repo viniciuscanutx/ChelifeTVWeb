@@ -1,8 +1,21 @@
 @if (loading()) {
-<div class="page-loading-wrapper">
-  <div class="spinner-purple"></div>
-  <p>Carregando título...</p>
-</div>
+<main class="watch-page">
+  <div class="hero-section watch-skeleton" role="status" aria-label="Carregando título">
+    <span class="skeleton-block watch-skeleton__backdrop" aria-hidden="true"></span>
+    <div class="hero-content" aria-hidden="true">
+      <span class="skeleton-block watch-skeleton__logo"></span>
+      <span class="skeleton-block watch-skeleton__meta"></span>
+      <span class="skeleton-block watch-skeleton__line"></span>
+      <span class="skeleton-block watch-skeleton__line"></span>
+      <span class="skeleton-block watch-skeleton__line watch-skeleton__line--short"></span>
+      <div class="watch-skeleton__actions">
+        <span class="skeleton-block watch-skeleton__button"></span>
+        <span class="skeleton-block watch-skeleton__button watch-skeleton__button--icon"></span>
+        <span class="skeleton-block watch-skeleton__button watch-skeleton__button--icon"></span>
+      </div>
+    </div>
+  </div>
+</main>
 }
 @else if (item(); as content) {
 <main class="watch-page animate-page-enter">
@@ -13,14 +26,14 @@
       <i class="bi bi-arrow-left"></i>
     </button>
 
-    <img class="hero-image" [src]="content.backdrop" [alt]="content.poster" />
+    <img class="hero-image" [src]="tmdbImage(content.backdrop, 'w1280')" [alt]="content.poster" />
     <div class="hero-gradient"></div>
     <div class="hero-gradient-side"></div>
 
     <div class="hero-content">
 
       @if (content.logoUrl) {
-      <img class="title-logo" [src]="content.logoUrl" [alt]="content.title" (error)="onLogoError()" />
+      <img class="title-logo" [src]="tmdbImage(content.logoUrl, 'w500')" [alt]="content.title" (error)="onLogoError()" />
       } @else {
       <h1 class="title-fallback">{{ content.title }}</h1>
       }
@@ -163,9 +176,9 @@
         <div class="episodes-skeletons" aria-hidden="true">
           @for (placeholder of [1, 2, 3, 4]; track placeholder) {
           <div class="episode-skeleton">
-            <span class="episode-skeleton__image"></span>
-            <span class="episode-skeleton__line"></span>
-            <span class="episode-skeleton__line episode-skeleton__line--short"></span>
+            <span class="skeleton-block episode-skeleton__image"></span>
+            <span class="skeleton-block episode-skeleton__line"></span>
+            <span class="skeleton-block episode-skeleton__line episode-skeleton__line--short"></span>
           </div>
           }
         </div>
@@ -190,7 +203,7 @@
             @for (ep of episodes(); track ep.id || ep.number; let idx = $index) {
             <article class="episode-card">
               <div class="episode-card__thumbnail">
-                <img class="episode-card__img" [src]="ep.bannerUrl || content.backdrop || content.poster" alt=""
+                <img class="episode-card__img" [src]="tmdbImage(ep.bannerUrl || content.backdrop || content.poster, 'w780')" alt=""
                   loading="lazy" decoding="async" />
 
                 @if (isEpisodeWatched(ep)) {
@@ -348,7 +361,7 @@
 
 @defer (when playerOpen()) {
   <app-video-player-modal [open]="playerOpen()" [src]="playerVideoUrl()" [loading]="resolvingVideo()"
-    [streamFormat]="playerStreamFormat()" [sources]="playerSources()" [poster]="content.backdrop || content.poster" [title]="playerTitle()"
+    [streamFormat]="playerStreamFormat()" [sources]="playerSources()" [poster]="tmdbImage(content.backdrop || content.poster, 'w1280')" [title]="playerTitle()"
     [startTime]="savedStartTime()" [hasNextEpisode]="hasNextEpisode()"
     [subtitleUrl]="playerSubtitleUrl()" [subtitleEnabled]="subtitleEnabledByDefault()" (timeUpdate)="onTimeUpdate($event)"
     (nextEpisode)="playNextEpisode()" (closed)="closePlayer()" (ended)="onVideoEnded()" />

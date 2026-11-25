@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { MediaItem } from '../../shared/components/media-card/media-card';
 import { MediaCarousel } from '../../shared/components/media-carousel/media-carousel';
+import { PosterRowsSkeleton } from '../../shared/components/poster-rows-skeleton/poster-rows-skeleton';
 import { FilterBar, FilterOption } from '../../shared/components/filter-bar/filter-bar';
 import { ContentApiService } from '../../shared/data/content-api.service';
 import { toMediaItem } from '../../shared/data/content-api.mapper';
@@ -16,7 +17,7 @@ const SORT_OPTIONS: FilterOption[] = [
 
 @Component({
   selector: 'app-movies',
-  imports: [MediaCarousel, FilterBar],
+  imports: [MediaCarousel, FilterBar, PosterRowsSkeleton],
   templateUrl: './movies.html',
   styleUrl: './movies.css',
 })

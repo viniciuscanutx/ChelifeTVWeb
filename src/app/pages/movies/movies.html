@@ -15,10 +15,7 @@
 
   <!-- Content Grid -->
   @if (loading()) {
-    <div class="page-loading-wrapper">
-      <div class="spinner-purple"></div>
-      <p>Carregando filmes...</p>
-    </div>
+    <app-poster-rows-skeleton [rows]="4" label="Carregando filmes" />
   }
   @else if (filteredMovies().length === 0) {
     <div class="catalog-state">

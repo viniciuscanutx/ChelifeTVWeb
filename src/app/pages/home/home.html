@@ -1,8 +1,10 @@
 @if (loading()) {
-<div class="page-loading-wrapper">
-  <div class="spinner-purple"></div>
-  <p class="loading-text">Carregando catálogo...</p>
-</div>
+<main class="home-wrapper">
+  <div class="hero-skeleton" role="status" aria-label="Carregando destaque">
+    <span class="skeleton-block hero-skeleton__block" aria-hidden="true"></span>
+  </div>
+  <app-poster-rows-skeleton [rows]="4" label="Carregando catálogo" />
+</main>
 }
 @else if (error()) {
 <div class="error-container">
@@ -16,7 +18,7 @@
   <section class="hero-banner">
 
     <div class="hero-backdrop-container">
-      <img class="hero-backdrop" [src]="hero.backdrop || hero.poster" [alt]="hero.title" />
+      <img class="hero-backdrop" [src]="tmdbImage(hero.backdrop || hero.poster, 'w1280')" [alt]="hero.title" />
       <div class="hero-gradient-left"></div>
       <div class="hero-gradient-bottom"></div>
     </div>
@@ -28,7 +30,7 @@
 
       @if (heroLogoUrl(); as logoUrl) {
       <h1 class="hero-title hero-title--logo">
-        <img class="hero-logo" [src]="logoUrl" [alt]="hero.title" (error)="heroLogoFailed.set(true)" />
+        <img class="hero-logo" [src]="tmdbImage(logoUrl, 'w500')" [alt]="hero.title" (error)="heroLogoFailed.set(true)" />
       </h1>
       } @else {
       <h1 class="hero-title">{{ hero.title }}</h1>
@@ -61,7 +63,7 @@
         <div class="continue-card" [routerLink]="['/watch', item.type, item.contentId]"
           [queryParams]="{ autoplay: 'true', episodeId: item.episodeId, season: item.season }">
           <div class="continue-card__image-wrap">
-            <img [src]="item.backdrop || item.poster" [alt]="item.title" loading="lazy" />
+            <img [src]="tmdbImage(item.backdrop || item.poster, 'w780')" [alt]="item.title" loading="lazy" />
             <button type="button" class="continue-card__remove" (click)="removeHistory($event, item.contentId)"
               title="Remover do histórico">
               <i class="bi bi-x-lg"></i>

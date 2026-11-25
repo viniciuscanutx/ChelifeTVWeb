@@ -355,14 +355,9 @@
   background-color: #15151e;
 }
 
-.episode-skeleton__image,
-.episode-skeleton__line {
-  display: block;
-  background-color: #22222d;
-}
-
 .episode-skeleton__image {
   aspect-ratio: 16 / 9;
+  border-radius: 0;
 }
 
 .episode-skeleton__line {

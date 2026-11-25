@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { PersonCreditList } from '../../shared/components/person-credit-list/person-credit-list';
+import { PosterRowsSkeleton } from '../../shared/components/poster-rows-skeleton/poster-rows-skeleton';
 import { ContentApiService } from '../../shared/data/content-api.service';
 import { PersonResponse } from '../../shared/data/content-api.types';
 
@@ -32,7 +33,7 @@ function formatDate(value?: string | null): string | null {
 
 @Component({
   selector: 'app-person',
-  imports: [RouterLink, PersonCreditList],
+  imports: [RouterLink, PersonCreditList, PosterRowsSkeleton],
   templateUrl: './person.html',
   styleUrl: './person.css',
 })

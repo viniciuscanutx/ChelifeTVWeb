@@ -2,6 +2,10 @@
   display: grid;
   gap: 20px;
 }
+.review-skeleton {
+  height: 180px;
+  border-radius: 16px;
+}
 .review-card {
   display: grid;
   grid-template-columns: 104px minmax(0, 1fr);

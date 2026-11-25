@@ -698,3 +698,68 @@
     transform: none;
   }
 }
+
+/* Skeleton de carregamento da página */
+.watch-skeleton__backdrop {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+}
+
+.watch-skeleton__logo {
+  width: min(48%, 420px);
+  height: 90px;
+  margin-bottom: 30px;
+}
+
+.watch-skeleton__meta {
+  width: 280px;
+  max-width: 100%;
+  height: 22px;
+  margin-bottom: 18px;
+}
+
+.watch-skeleton__line {
+  width: 100%;
+  height: 16px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+}
+
+.watch-skeleton__line--short {
+  width: 60%;
+}
+
+.watch-skeleton__actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.watch-skeleton__button {
+  width: 180px;
+  height: 52px;
+  border-radius: 8px;
+}
+
+.watch-skeleton__button--icon {
+  width: 52px;
+  border-radius: 50%;
+}
+
+@media (max-width: 576px) {
+  .watch-skeleton__logo {
+    width: min(78%, 240px);
+    height: 64px;
+    margin-bottom: 20px;
+  }
+
+  .watch-skeleton__button {
+    width: 140px;
+    height: 46px;
+  }
+
+  .watch-skeleton__button--icon {
+    width: 46px;
+  }
+}

@@ -19,7 +19,11 @@
     <p role="alert">{{ actionError() }}</p>
   }
   @if (loading()) {
-    <p class="list-status" role="status">Carregando favoritos...</p>
+    <div class="collection-grid" [class.preview-grid]="preview()" role="status" aria-label="Carregando favoritos">
+      @for (card of [1, 2, 3, 4, 5]; track card) {
+        <span class="skeleton-block skeleton-poster" aria-hidden="true"></span>
+      }
+    </div>
   } @else if (error()) {
     <p role="alert">{{ error() }}</p>
     <button type="button" (click)="reload()">Tentar novamente</button>

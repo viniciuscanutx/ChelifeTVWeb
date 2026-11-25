@@ -12,6 +12,8 @@ import { catchError, debounceTime, distinctUntilChanged, of, switchMap } from 'r
   styleUrl: './search.css',
 })
 export class SearchPage {
+  readonly resultSkeletonItems = Array.from({ length: 12 }, (_, index) => index);
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly api = inject(ContentApiService);

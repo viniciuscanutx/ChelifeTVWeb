@@ -14,6 +14,7 @@ import { capitalizeFirstLetter } from '../../utils/utils';
 })
 export class ChannelsPage implements OnInit {
   readonly capitalizeFirstLetter = capitalizeFirstLetter;
+  readonly channelSkeletonItems = Array.from({ length: 12 }, (_, index) => index);
 
   private readonly api = inject(ContentApiService);
 

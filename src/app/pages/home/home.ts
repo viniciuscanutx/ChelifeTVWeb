@@ -2,8 +2,10 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MediaItem } from '../../shared/components/media-card/media-card';
 import { MediaCarousel } from '../../shared/components/media-carousel/media-carousel';
+import { PosterRowsSkeleton } from '../../shared/components/poster-rows-skeleton/poster-rows-skeleton';
 import { ContentApiService } from '../../shared/data/content-api.service';
 import { mapHomeResponse, toMediaItem, seriesToMediaItem, type HomeMappedData } from '../../shared/data/content-api.mapper';
+import { tmdbImage } from '../../shared/data/tmdb-image';
 import { capitalizeFirstLetter } from '../../utils/utils';
 import { catchError, forkJoin, map, of } from 'rxjs';
 import { WatchProgressService, WatchProgress } from '../../shared/services/watch-progress.service';
@@ -33,12 +35,13 @@ function keepFirstAppearance(rails: CategoryRail[]): CategoryRail[] {
 
 @Component({
   selector: 'app-home',
-  imports: [MediaCarousel, RouterLink],
+  imports: [MediaCarousel, RouterLink, PosterRowsSkeleton],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
 export class Home {
   readonly capitalizeFirstLetter = capitalizeFirstLetter;
+  protected readonly tmdbImage = tmdbImage;
   private readonly api = inject(ContentApiService);
   private readonly watchProgress = inject(WatchProgressService);
 

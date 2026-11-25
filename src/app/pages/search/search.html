@@ -56,8 +56,10 @@
 
   <!-- Results Section -->
   @if (loading()) {
-    <div class="search-state">
-      <i class="bi bi-hourglass-split"></i> Pesquisando títulos...
+    <div class="search-results-grid" role="status" aria-label="Pesquisando títulos">
+      @for (card of resultSkeletonItems; track card) {
+        <span class="skeleton-block skeleton-poster" aria-hidden="true"></span>
+      }
     </div>
   }
   @else if (!queryTerm()) {

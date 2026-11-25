@@ -5,9 +5,17 @@
 }
 <div class="profile-page animate-page-enter" [class.has-banner]="!!visibleBannerUrl()">
   @if (loading()) {
-    <div class="page-loading-wrapper" role="status">
-      <div class="spinner-purple"></div>
-      <p>Carregando perfil...</p>
+    <div role="status" aria-label="Carregando perfil">
+      <header class="profile-header" aria-hidden="true">
+        <span class="skeleton-block profile-skeleton__banner"></span>
+        <div class="profile-header__content">
+          <span class="skeleton-block profile-skeleton__avatar"></span>
+          <div class="profile-identity">
+            <span class="skeleton-block profile-skeleton__name"></span>
+            <span class="skeleton-block profile-skeleton__line"></span>
+          </div>
+        </div>
+      </header>
     </div>
   } @else if (profileError()) {
     <p role="alert">{{ profileError() }}</p>

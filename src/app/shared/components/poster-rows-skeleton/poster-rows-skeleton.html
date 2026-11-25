@@ -1,0 +1,12 @@
+<div class="poster-rows" role="status" [attr.aria-label]="label()">
+  @for (row of rowItems(); track row) {
+    <section class="poster-row" aria-hidden="true">
+      <span class="skeleton-block skeleton-heading"></span>
+      <div class="poster-row__track">
+        @for (poster of posterItems; track poster) {
+          <span class="skeleton-block skeleton-poster poster-row__item"></span>
+        }
+      </div>
+    </section>
+  }
+</div>

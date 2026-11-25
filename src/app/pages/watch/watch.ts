@@ -18,6 +18,7 @@ import { MediaCarousel } from '../../shared/components/media-carousel/media-caro
 import { ContentApiService } from '../../shared/data/content-api.service';
 import { ResolvedVideoResponse, VideoSource } from '../../shared/data/content-api.types';
 import { seriesToMediaItem, toMediaItem } from '../../shared/data/content-api.mapper';
+import { tmdbImage } from '../../shared/data/tmdb-image';
 import { capitalizeFirstLetter } from '../../utils/utils';
 import { VideoPlayerModal } from '../../shared/components/video-player-modal/video-player-modal';
 import { WatchProgressService } from '../../shared/services/watch-progress.service';
@@ -98,6 +99,7 @@ const PARENTAL_BADGES: Record<string, ParentalBadge> = {
 })
 export class Watch implements AfterViewInit, OnDestroy {
   readonly capitalizeFirstLetter = capitalizeFirstLetter;
+  protected readonly tmdbImage = tmdbImage;
 
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(ContentApiService);
@@ -665,7 +667,7 @@ export class Watch implements AfterViewInit, OnDestroy {
       if (item) {
         const imageUrl = item.backdrop || item.poster;
         if (imageUrl) {
-          await this.preloadImage(imageUrl);
+          await this.preloadImage(tmdbImage(imageUrl, 'w1280'));
         }
       }
 

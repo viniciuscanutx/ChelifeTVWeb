@@ -1,8 +1,18 @@
 <main class="person-page animate-page-enter">
   @if (loading()) {
-  <div class="page-loading-wrapper" role="status">
-    <div class="spinner-purple"></div>
-    <p>Carregando...</p>
+  <div role="status" aria-label="Carregando pessoa">
+    <header class="person-header" aria-hidden="true">
+      <span class="skeleton-block person-photo"></span>
+      <div class="person-info">
+        <span class="skeleton-block person-skeleton__name"></span>
+        <span class="skeleton-block person-skeleton__line person-skeleton__line--short"></span>
+        <span class="skeleton-block person-skeleton__line"></span>
+        <span class="skeleton-block person-skeleton__line"></span>
+        <span class="skeleton-block person-skeleton__line"></span>
+        <span class="skeleton-block person-skeleton__line person-skeleton__line--short"></span>
+      </div>
+    </header>
+    <app-poster-rows-skeleton [rows]="1" label="Carregando títulos" />
   </div>
   } @else if (error() || !person()) {
   <div class="person-state" role="alert">

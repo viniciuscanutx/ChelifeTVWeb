@@ -5,6 +5,17 @@
   overflow-x: hidden;
 }
 
+.hero-skeleton {
+  margin-bottom: 20px;
+}
+
+.hero-skeleton__block {
+  width: 100%;
+  min-height: 75vh;
+  max-height: 680px;
+  border-radius: 0;
+}
+
 .loading-container,
 .error-container {
   display: flex;
@@ -426,7 +437,8 @@
 
 
 @media (max-width: 768px) {
-  .hero-banner {
+  .hero-banner,
+  .hero-skeleton__block {
     min-height: 65vh;
   }
 

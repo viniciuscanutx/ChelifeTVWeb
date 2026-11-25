@@ -15,10 +15,7 @@
 
   <!-- Content Grid -->
   @if (loading()) {
-    <div class="page-loading-wrapper">
-      <div class="spinner-purple"></div>
-      <p>Carregando séries...</p>
-    </div>
+    <app-poster-rows-skeleton [rows]="4" label="Carregando séries" />
   }
   @else if (filteredSeries().length === 0) {
     <div class="catalog-state">

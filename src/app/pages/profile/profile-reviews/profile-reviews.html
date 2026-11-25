@@ -5,7 +5,11 @@
     <p>Suas 10 avaliações mais recentes de filmes e séries.</p>
   </header>
   @if (loading()) {
-    <p class="list-status" role="status">Carregando avaliações...</p>
+    <div class="review-list" role="status" aria-label="Carregando avaliações">
+      @for (row of [1, 2, 3]; track row) {
+        <span class="skeleton-block review-skeleton" aria-hidden="true"></span>
+      }
+    </div>
   } @else if (error()) {
     <p role="alert">{{ error() }}</p>
     <button type="button" (click)="reload()">Tentar novamente</button>
