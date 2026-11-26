@@ -33,14 +33,21 @@ export class WatchProgressService {
 
   private readonly auth = inject(AuthService);
   readonly items = signal<WatchProgress[]>([]);
+  // Primeira lista do usuário já chegou (ou falhou)
+  readonly loaded = signal(false);
 
   constructor(private http: HttpClient) {
     effect(onCleanup => {
       const userId = this.auth.currentUser()?.id;
       this.items.set([]);
+      this.loaded.set(!userId);
       if (!userId) return;
       const subscription = this.getContinueWatching().subscribe({
-        next: list => this.items.set(list), error: () => {},
+        next: list => {
+          this.items.set(list);
+          this.loaded.set(true);
+        },
+        error: () => this.loaded.set(true),
       });
       onCleanup(() => subscription.unsubscribe());
     });

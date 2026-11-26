@@ -12,7 +12,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Subscription, catchError, map, of, switchMap } from 'rxjs';
+import { Subscription, catchError, finalize, firstValueFrom, map, of, switchMap } from 'rxjs';
+import { preloadImage } from '../../utils/preload-image';
 import { MediaItem } from '../../shared/components/media-card/media-card';
 import { MediaCarousel } from '../../shared/components/media-carousel/media-carousel';
 import { ContentApiService } from '../../shared/data/content-api.service';
@@ -664,23 +665,20 @@ export class Watch implements AfterViewInit, OnDestroy {
       this.playerError.set(false);
       this.error.set(item ? null : 'Não foi possível encontrar este título.');
 
+      // Skeleton fica até imagens do topo, recomendados e episódios chegarem
       if (item) {
         const imageUrl = item.backdrop || item.poster;
-        if (imageUrl) {
-          await this.preloadImage(tmdbImage(imageUrl, 'w1280'));
-        }
+        await Promise.all([
+          preloadImage(imageUrl ? tmdbImage(imageUrl, 'w1280') : null),
+          preloadImage(item.logoUrl ? tmdbImage(item.logoUrl, 'w500') : null),
+          this.loadRecommended(item),
+          item.type === 'series' ? this.loadEpisodes(item.id, this.targetSeason() || 1) : null,
+        ]);
       }
 
       this.loading.set(false);
 
-      if (item) {
-        this.loadRecommended(item);
-      }
-
-      if (item?.type === 'series') {
-        const seasonToLoad = this.targetSeason() || 1;
-        this.loadEpisodes(item.id, seasonToLoad);
-      } else if (item) {
+      if (item && item.type !== 'series') {
         if (this.autoPlayRequested()) {
           this.autoPlayRequested.set(false);
           this.openPlayer();
@@ -794,44 +792,12 @@ export class Watch implements AfterViewInit, OnDestroy {
     }
   }
 
-  private loadRecommended(item: WatchItem): void {
+  private loadRecommended(item: WatchItem): Promise<void> {
     const rec$ = item.type === 'series'
       ? this.api.getSeriesRecommended(item.id).pipe(map((list) => list.map(seriesToMediaItem)), catchError(() => of([])))
       : this.api.getMoviesRecommended(item.id).pipe(map((list) => list.map(toMediaItem)), catchError(() => of([])));
 
-    rec$.subscribe((list) => this.recommended.set(list));
-  }
-
-  private preloadImage(url?: string | null): Promise<void> {
-    if (!url) return Promise.resolve();
-    return new Promise((resolve) => {
-      const img = new Image();
-      let resolved = false;
-
-      const done = () => {
-        if (!resolved) {
-          resolved = true;
-          resolve();
-        }
-      };
-
-      const timer = setTimeout(done, 5000);
-
-      img.onload = () => {
-        clearTimeout(timer);
-        done();
-      };
-      img.onerror = () => {
-        clearTimeout(timer);
-        done();
-      };
-
-      img.src = url;
-      if (img.complete) {
-        clearTimeout(timer);
-        done();
-      }
-    });
+    return firstValueFrom(rec$, { defaultValue: [] }).then((list) => this.recommended.set(list));
   }
 
   onPlayerError(): void {
@@ -903,16 +869,20 @@ export class Watch implements AfterViewInit, OnDestroy {
     }));
   }
 
-  private loadEpisodes(seriesId: string, season: number, playFirstEpisode = false): void {
+  // Resolve quando a temporada termina (ou é cancelada por outra)
+  private loadEpisodes(seriesId: string, season: number, playFirstEpisode = false): Promise<void> {
     this.episodesSubscription?.unsubscribe();
     this.selectedSeason.set(season);
     this.loadingEpisodes.set(true);
     this.episodesError.set(null);
+    let settle!: () => void;
+    const settled = new Promise<void>((resolve) => (settle = resolve));
     this.episodesSubscription = this.api.getEpisodes(seriesId, season).pipe(
       catchError(() => {
         this.episodesError.set('Não foi possível carregar os episódios. Tente novamente.');
         return of([]);
       }),
+      finalize(() => settle()),
     ).subscribe((res: any) => {
       this.loadingEpisodes.set(false);
       const list = this.mapEpisodes(res, season);
@@ -933,5 +903,6 @@ export class Watch implements AfterViewInit, OnDestroy {
         }
       }
     });
+    return settled;
   }
 }

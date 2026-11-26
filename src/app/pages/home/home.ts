@@ -7,7 +7,8 @@ import { ContentApiService } from '../../shared/data/content-api.service';
 import { mapHomeResponse, toMediaItem, seriesToMediaItem, type HomeMappedData } from '../../shared/data/content-api.mapper';
 import { tmdbImage } from '../../shared/data/tmdb-image';
 import { capitalizeFirstLetter } from '../../utils/utils';
-import { catchError, forkJoin, map, of } from 'rxjs';
+import { preloadImage } from '../../utils/preload-image';
+import { Observable, catchError, forkJoin, from, map, of, switchMap } from 'rxjs';
 import { WatchProgressService, WatchProgress } from '../../shared/services/watch-progress.service';
 
 interface CategoryRail {
@@ -49,7 +50,9 @@ export class Home {
   readonly topRated = signal<MediaItem[]>([]);
   readonly trending = signal<MediaItem[]>([]);
   readonly categoryRails = signal<CategoryRail[]>([]);
-  readonly loading = signal(true);
+  private readonly dataLoading = signal(true);
+  // Skeleton fica até dados, fileiras, imagens do hero e "Continuar Assistindo" chegarem
+  readonly loading = computed(() => this.dataLoading() || !this.watchProgress.loaded());
   readonly error = signal<string | null>(null);
 
   readonly continueWatchingItems = computed(() => {
@@ -69,33 +72,46 @@ export class Home {
       home: this.api.getHome().pipe(catchError(() => of(null))),
       movies: this.api.getMovies().pipe(catchError(() => of([]))),
       series: this.api.getSeries().pipe(catchError(() => of([]))),
-    }).subscribe({
-      next: ({ home, movies, series }) => {
+    }).pipe(
+      switchMap(({ home, movies, series }) => {
         const mapped: HomeMappedData = mapHomeResponse(
           home ?? { featured: null, featuredType: 'movie', movieCategories: [], seriesCategories: [] },
           movies,
           series,
         );
+        const isEmpty = !mapped.heroItem && movies.length === 0 && series.length === 0;
 
+        return forkJoin({
+          rails: this.loadCategoryRails(mapped.movieCategories, mapped.seriesCategories),
+          heroImages: from(this.preloadHeroImages(mapped.heroItem)),
+        }).pipe(map(({ rails }) => ({ mapped, rails, isEmpty })));
+      }),
+    ).subscribe({
+      next: ({ mapped, rails, isEmpty }) => {
         this.heroItem.set(mapped.heroItem);
         this.topRated.set(mapped.topRated);
         this.trending.set(mapped.trending);
-        this.loading.set(false);
-
-        if (!mapped.heroItem && movies.length === 0 && series.length === 0) {
-          this.error.set('Não foi possível carregar o conteúdo.');
-        }
-
-        this.loadCategoryRails(mapped.movieCategories, mapped.seriesCategories);
+        this.categoryRails.set(rails);
+        if (isEmpty) this.error.set('Não foi possível carregar o conteúdo.');
+        this.dataLoading.set(false);
       },
       error: () => {
         this.error.set('Não foi possível carregar o conteúdo.');
-        this.loading.set(false);
+        this.dataLoading.set(false);
       },
     });
   }
 
-  private loadCategoryRails(movieCategories: string[], seriesCategories: string[]): void {
+  private preloadHeroImages(hero: MediaItem | null): Promise<unknown> {
+    if (!hero) return Promise.resolve();
+    const logoUrl = this.api.resolveMediaUrl(hero.logoUrl);
+    return Promise.all([
+      preloadImage(tmdbImage(hero.backdrop || hero.poster, 'w1280')),
+      preloadImage(logoUrl ? tmdbImage(logoUrl, 'w500') : null),
+    ]);
+  }
+
+  private loadCategoryRails(movieCategories: string[], seriesCategories: string[]): Observable<CategoryRail[]> {
     const movieCalls = movieCategories.map((cat) =>
       this.api.getMoviesByCategory(cat, 1, RAIL_FETCH_SIZE).pipe(
         map((items): CategoryRail => ({
@@ -119,12 +135,14 @@ export class Home {
     );
 
     const calls = [...movieCalls, ...seriesCalls];
-    if (calls.length === 0) return;
+    if (calls.length === 0) return of([]);
 
-    forkJoin(calls).subscribe((rails) => {
-      const loadedRails = rails.filter((r): r is CategoryRail => !!r);
-      this.categoryRails.set(keepFirstAppearance(loadedRails).filter((r) => r.items.length > 0));
-    });
+    return forkJoin(calls).pipe(
+      map((rails) => {
+        const loadedRails = rails.filter((r): r is CategoryRail => !!r);
+        return keepFirstAppearance(loadedRails).filter((r) => r.items.length > 0);
+      }),
+    );
   }
 
   formatRemainingTime(item: WatchProgress): string {

@@ -1,6 +1,6 @@
 import { ProfileBadge } from '../../shared/components/profile-badge/profile-badge';
 import { ProfileBadges } from './profile-badges/profile-badges';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   DestroyRef,
@@ -9,13 +9,15 @@ import {
   afterNextRender,
   computed,
   inject,
+  linkedSignal,
   signal,
   viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { of, switchMap } from 'rxjs';
+import { from, map, of, switchMap } from 'rxjs';
+import { preloadImage } from '../../utils/preload-image';
 import { SiteProfile } from '../../shared/models/profile.model';
 import { ProfileService, profileError } from '../../shared/services/profile.service';
 import { FeedbackService } from '../../shared/services/feedback.service';
@@ -42,6 +44,7 @@ function isHttpUrl(value: string): boolean {
     FormsModule,
     RouterLink,
     DatePipe,
+    NgTemplateOutlet,
     ProfileAvatar,
     FavoritesCollection,
     ProfileReviews,
@@ -90,6 +93,11 @@ export class Profile {
     if (this.activeTab() === 'reviews') return true;
     return loaded.has('movies') && loaded.has('series') && !this.recentLoading();
   });
+  // Cabeçalho e abas só aparecem junto com as seções na primeira carga; depois não voltam ao skeleton
+  readonly pageReady = linkedSignal<boolean, boolean>({
+    source: this.sectionsReady,
+    computation: (ready, previous) => ready || (previous?.value ?? false),
+  });
 
   markSectionLoaded(section: ProfileSection): void {
     this.loadedSections.update((loaded) =>
@@ -107,7 +115,13 @@ export class Profile {
     this.profileError.set('');
     this.api
       .getProfile()
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        switchMap((profile) => {
+          const banner = profile.bannerUrl && isHttpUrl(profile.bannerUrl) ? profile.bannerUrl : null;
+          return from(preloadImage(banner)).pipe(map(() => profile));
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
       .subscribe({
         next: (profile) => {
           this.profile.set(profile);

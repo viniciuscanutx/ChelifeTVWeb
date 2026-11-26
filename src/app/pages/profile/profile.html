@@ -1,27 +1,57 @@
-@if (visibleBannerUrl(); as banner) {
+<ng-template #headerSkeleton>
+  <header class="profile-header" aria-hidden="true">
+    <span class="skeleton-block profile-skeleton__banner"></span>
+    <div class="profile-header__content">
+      <span class="skeleton-block profile-skeleton__avatar"></span>
+      <div class="profile-identity">
+        <span class="skeleton-block profile-skeleton__name"></span>
+        <span class="skeleton-block profile-skeleton__line"></span>
+      </div>
+    </div>
+  </header>
+</ng-template>
+<ng-template #sectionsSkeleton>
+  @if (activeTab() === 'profile') {
+    @for (section of [1, 2]; track section) {
+      <div class="skeleton-section" aria-hidden="true">
+        <span class="skeleton-block skeleton-heading"></span>
+        <div class="collection-grid preview-grid">
+          @for (card of [1, 2, 3, 4, 5]; track card) {
+            <span class="skeleton-block skeleton-poster"></span>
+          }
+        </div>
+      </div>
+    }
+  } @else {
+    <div class="skeleton-section" aria-hidden="true">
+      <span class="skeleton-block skeleton-heading"></span>
+      @for (row of [1, 2]; track row) {
+        <span class="skeleton-block skeleton-review"></span>
+      }
+    </div>
+  }
+</ng-template>
+@if (pageReady() && visibleBannerUrl(); as banner) {
   <div class="profile-backdrop" aria-hidden="true">
     <img [src]="banner" alt="" referrerpolicy="no-referrer" (error)="failedBannerUrl.set(banner)" />
   </div>
 }
-<div class="profile-page animate-page-enter" [class.has-banner]="!!visibleBannerUrl()">
+<div class="profile-page animate-page-enter" [class.has-banner]="pageReady() && !!visibleBannerUrl()">
   @if (loading()) {
     <div role="status" aria-label="Carregando perfil">
-      <header class="profile-header" aria-hidden="true">
-        <span class="skeleton-block profile-skeleton__banner"></span>
-        <div class="profile-header__content">
-          <span class="skeleton-block profile-skeleton__avatar"></span>
-          <div class="profile-identity">
-            <span class="skeleton-block profile-skeleton__name"></span>
-            <span class="skeleton-block profile-skeleton__line"></span>
-          </div>
-        </div>
-      </header>
+      <ng-container *ngTemplateOutlet="headerSkeleton" />
+      <div class="profile-skeleton"><ng-container *ngTemplateOutlet="sectionsSkeleton" /></div>
     </div>
   } @else if (profileError()) {
     <p role="alert">{{ profileError() }}</p>
     <button type="button" (click)="loadProfile()">Tentar novamente</button>
   } @else if (profile(); as user) {
-    <header class="profile-header">
+    @if (!pageReady()) {
+      <div role="status" aria-label="Carregando perfil">
+        <ng-container *ngTemplateOutlet="headerSkeleton" />
+      </div>
+    }
+    <header class="profile-header" [hidden]="!pageReady()">
       <div class="profile-banner" aria-hidden="true">
         <app-profile-avatar
           [url]="user.avatarUrl"
@@ -146,7 +176,7 @@
       </form>
     }
 
-    <nav class="profile-tabs" aria-label="Conteúdo do perfil">
+    <nav class="profile-tabs" aria-label="Conteúdo do perfil" [hidden]="!pageReady()">
       <button
         type="button"
         [class.active]="activeTab() === 'profile'"
@@ -167,25 +197,7 @@
     <div class="tab-panels" #tabPanels>
     @if (!sectionsReady()) {
       <div class="profile-skeleton" role="status" aria-label="Carregando conteúdo do perfil">
-        @if (activeTab() === 'profile') {
-          @for (section of [1, 2]; track section) {
-            <div class="skeleton-section" aria-hidden="true">
-              <span class="skeleton-block skeleton-heading"></span>
-              <div class="collection-grid preview-grid">
-                @for (card of [1, 2, 3, 4, 5]; track card) {
-                  <span class="skeleton-block skeleton-poster"></span>
-                }
-              </div>
-            </div>
-          }
-        } @else {
-          <div class="skeleton-section" aria-hidden="true">
-            <span class="skeleton-block skeleton-heading"></span>
-            @for (row of [1, 2]; track row) {
-              <span class="skeleton-block skeleton-review"></span>
-            }
-          </div>
-        }
+        <ng-container *ngTemplateOutlet="sectionsSkeleton" />
       </div>
     }
     <div class="profile-content" [class.is-ready]="sectionsReady()" [attr.aria-busy]="!sectionsReady()">
