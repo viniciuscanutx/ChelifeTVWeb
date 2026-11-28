@@ -381,6 +381,100 @@
   background: #aa7cff;
 }
 
+/* Selo do modo ao vivo, no lugar do tempo */
+.vp__live {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  margin-left: .35rem;
+  padding: .2rem .6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 0, 0, .4);
+  background: rgba(0, 0, 0, .55);
+  color: #ff4d4d;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .05em;
+  white-space: nowrap;
+}
+.vp__live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff0000;
+  box-shadow: 0 0 6px #ff0000;
+}
+
+/* Card do próximo episódio (faltando 50 s) */
+.vp__next-card {
+  position: absolute;
+  right: 1rem;
+  bottom: 5.5rem;
+  z-index: 16;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  max-width: min(420px, calc(100% - 2rem));
+  padding: .75rem .75rem .75rem 1rem;
+  border-radius: 12px;
+  background: var(--vp-bg-strong);
+  border: 1px solid rgba(255, 255, 255, .12);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .5);
+  animation: vp-fade-in .25s ease;
+}
+.vp__next-card-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+.vp__next-card-kicker {
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: rgba(255, 255, 255, .65);
+}
+.vp__next-card-title {
+  font-size: .95rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.vp__next-card-play {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  flex-shrink: 0;
+  padding: .55rem 1rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--vp-accent);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--vp-transition);
+}
+.vp__next-card-play:hover { background: #aa7cff; }
+.vp__next-card-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .1);
+  color: #fff;
+  cursor: pointer;
+  transition: background var(--vp-transition);
+}
+.vp__next-card-close:hover { background: rgba(255, 255, 255, .2); }
+.vp__next-card-play:focus-visible,
+.vp__next-card-close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
 /* Fullscreen tweaks */
 .vp--fullscreen {
   position: fixed !important;
@@ -424,6 +518,10 @@
   .vp__btn.vp__btn--settings { width: 36px; min-width: 36px; padding: 0; }
   .vp__menu-item { font-size: .8rem; padding: .45rem .7rem; }
   .vp__spinner-inner { width: 40px; height: 40px; border-width: 3px; }
+  .vp__next-card { right: .6rem; bottom: 4.5rem; max-width: calc(100% - 1.2rem); gap: .5rem; padding: .55rem .55rem .55rem .8rem; }
+  .vp__next-card-title { font-size: .85rem; }
+  .vp__live { font-size: .64rem; padding: .15rem .5rem; margin-left: .15rem; }
+  .vp__next-card-play { padding: .45rem .8rem; font-size: .85rem; }
 }
 
 /* ====== MOBILE PEQUENO ====== */
@@ -438,5 +536,5 @@
 
 /* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
-  .vp__big-play, .vp__big-btn, .vp__btn, .vp__volume-bar, .vp__menu, .vp__spinner-inner { animation: none; transition: none; }
+  .vp__big-play, .vp__big-btn, .vp__btn, .vp__volume-bar, .vp__menu, .vp__spinner-inner, .vp__next-card { animation: none; transition: none; }
 }

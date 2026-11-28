@@ -21,6 +21,9 @@ import type { SubtitleCue } from '../../data/subtitle-parser';
 import { SubtitleService } from '../../services/subtitle.service';
 
 type VideoState = 'idle' | 'loading' | 'playing' | 'paused' | 'ended' | 'error';
+
+// Segundos antes do fim em que o card do próximo episódio aparece
+const NEXT_EPISODE_LEAD_SECONDS = 50;
 type SubtitleStatus = 'none' | 'loading' | 'ready' | 'error';
 
 interface PlacedCue {
@@ -54,6 +57,9 @@ export class VideoPlayer implements OnDestroy {
   readonly autoplay = input<boolean>(true);
   readonly startTime = input<number>(0);
   readonly hasNextEpisode = input<boolean>(false);
+  readonly nextEpisodeLabel = input<string | null>(null);
+  // Transmissão ao vivo: sem barra de tempo, ±10 s e velocidade
+  readonly isLive = input<boolean>(false);
   readonly subtitleUrl = input<string | null>(null);
   readonly subtitleEnabled = input<boolean>(true);
 
@@ -129,6 +135,17 @@ export class VideoPlayer implements OnDestroy {
     return d > 0 ? Math.min(100, (this.buffered() / d) * 100) : 0;
   });
 
+  // X do card cancela o autoplay só deste vídeo
+  readonly nextEpisodeDismissed = signal(false);
+
+  readonly showNextEpisodeCard = computed(() => {
+    if (!this.hasNextEpisode() || this.nextEpisodeDismissed()) return false;
+    const state = this.videoState();
+    if (state === 'ended' || state === 'error') return false;
+    const d = this.duration();
+    return isFinite(d) && d > NEXT_EPISODE_LEAD_SECONDS && d - this.currentTime() <= NEXT_EPISODE_LEAD_SECONDS;
+  });
+
   readonly currentTimeLabel = computed(() => this.formatTime(this.currentTime()));
   readonly durationLabel = computed(() => this.formatTime(this.duration()));
 
@@ -148,6 +165,7 @@ export class VideoPlayer implements OnDestroy {
     effect(() => {
       const url = this.src();
       const format = this.streamFormat();
+      untracked(() => this.nextEpisodeDismissed.set(false));
       this.loadVideo(url, format);
     });
     effect(() => {
@@ -199,6 +217,7 @@ export class VideoPlayer implements OnDestroy {
       this.videoState.set('ended');
       this.currentTime.set(0);
       this.ended.emit();
+      if (this.hasNextEpisode() && !this.nextEpisodeDismissed()) this.nextEpisode.emit();
     };
     const onError = () => {
       if (this.tryNextCustomQuality(video)) return;
@@ -517,6 +536,12 @@ export class VideoPlayer implements OnDestroy {
     this.nextEpisode.emit();
   }
 
+  dismissNextEpisode(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.nextEpisodeDismissed.set(true);
+  }
+
   togglePlay(event?: Event): void {
     event?.preventDefault();
     event?.stopPropagation();
@@ -739,10 +764,12 @@ export class VideoPlayer implements OnDestroy {
         event.preventDefault();
         break;
       case 'ArrowLeft':
+        if (this.isLive()) break;
         this.seekBackward();
         event.preventDefault();
         break;
       case 'ArrowRight':
+        if (this.isLive()) break;
         this.seekForward();
         event.preventDefault();
         break;

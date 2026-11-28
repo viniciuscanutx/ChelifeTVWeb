@@ -362,7 +362,7 @@
 @defer (when playerOpen()) {
   <app-video-player-modal [open]="playerOpen()" [src]="playerVideoUrl()" [loading]="resolvingVideo()"
     [streamFormat]="playerStreamFormat()" [sources]="playerSources()" [poster]="tmdbImage(content.backdrop || content.poster, 'w1280')" [title]="playerTitle()"
-    [startTime]="savedStartTime()" [hasNextEpisode]="hasNextEpisode()"
+    [startTime]="savedStartTime()" [hasNextEpisode]="hasNextEpisode()" [nextEpisodeLabel]="nextEpisodeLabel()"
     [subtitleUrl]="playerSubtitleUrl()" [subtitleEnabled]="subtitleEnabledByDefault()" (timeUpdate)="onTimeUpdate($event)"
     (nextEpisode)="playNextEpisode()" (closed)="closePlayer()" (ended)="onVideoEnded()" />
 }

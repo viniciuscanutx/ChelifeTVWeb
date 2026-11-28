@@ -240,17 +240,25 @@ export class Watch implements AfterViewInit, OnDestroy {
     return !!item?.highQuality;
   });
 
-  readonly hasNextEpisode = computed(() => {
+  // Próximo episódio oferecido no player ("T1:E5 · Título"); sem vídeo não é oferecido
+  readonly nextEpisodeLabel = computed<string | null>(() => {
     const item = this.item();
     const ep = this.activeEpisode();
-    if (item?.type !== 'series' || !ep) return false;
+    if (item?.type !== 'series' || !ep) return null;
     const list = this.episodes();
     const idx = list.findIndex((e) => e.id === ep.id);
-    if (idx >= 0 && idx < list.length - 1) return true;
-    const seasons = item.totalSeasons || 1;
     const currentSeason = ep.season ?? this.selectedSeason();
-    return currentSeason < seasons;
+    if (idx >= 0 && idx < list.length - 1) {
+      const next = list[idx + 1];
+      if (!this.getActiveResolverUrl(next)) return null;
+      const code = `T${next.season ?? currentSeason}:E${next.number ?? idx + 2}`;
+      return next.title ? `${code} · ${next.title}` : code;
+    }
+    const seasons = item.totalSeasons || 1;
+    return currentSeason < seasons ? `T${currentSeason + 1}:E1` : null;
   });
+
+  readonly hasNextEpisode = computed(() => this.nextEpisodeLabel() !== null);
 
   readonly playerTitle = computed(() => {
     const item = this.item();

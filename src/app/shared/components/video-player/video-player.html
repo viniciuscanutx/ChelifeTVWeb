@@ -38,6 +38,23 @@
     </div>
   }
 
+  @if (showNextEpisodeCard()) {
+    <section class="vp__next-card" aria-label="Próximo episódio" aria-live="polite" (click)="$event.stopPropagation()">
+      <div class="vp__next-card-text">
+        <span class="vp__next-card-kicker">Próximo episódio</span>
+        @if (nextEpisodeLabel(); as label) {
+          <span class="vp__next-card-title" [title]="label">{{ label }}</span>
+        }
+      </div>
+      <button type="button" class="vp__next-card-play" (click)="onNextEpisode($event)">
+        <i class="bi bi-play-fill" aria-hidden="true"></i> Assistir
+      </button>
+      <button type="button" class="vp__next-card-close" (click)="dismissNextEpisode($event)" aria-label="Cancelar próximo episódio">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </button>
+    </section>
+  }
+
   @if (videoState() === 'error') {
     <div class="vp__error">
       <i class="bi bi-exclamation-triangle-fill"></i>
@@ -47,22 +64,26 @@
   }
 
   <div class="vp__controls" [class.is-hidden]="!showControls()">
-    <div class="vp__progress" (click)="jumpProgress($event)">
-      <div class="vp__progress-buffered" [style.width.%]="bufferedProgress()"></div>
-      <div class="vp__progress-played" [style.width.%]="progress()"></div>
-    </div>
+    @if (!isLive()) {
+      <div class="vp__progress" (click)="jumpProgress($event)">
+        <div class="vp__progress-buffered" [style.width.%]="bufferedProgress()"></div>
+        <div class="vp__progress-played" [style.width.%]="progress()"></div>
+      </div>
+    }
 
     <div class="vp__row">
       <div class="vp__group">
         <button type="button" class="vp__btn" (click)="togglePlay($event)" [attr.aria-label]="videoState() === 'playing' ? 'Pausar' : 'Reproduzir'">
           <i class="bi" [class.bi-play-fill]="videoState() !== 'playing'" [class.bi-pause-fill]="videoState() === 'playing'"></i>
         </button>
-        <button type="button" class="vp__btn" (click)="seekBackward()" aria-label="Retroceder 10s">
-          <i class="bi bi-arrow-counterclockwise"></i>
-        </button>
-        <button type="button" class="vp__btn" (click)="seekForward()" aria-label="Avançar 10s">
-          <i class="bi bi-arrow-clockwise"></i>
-        </button>
+        @if (!isLive()) {
+          <button type="button" class="vp__btn" (click)="seekBackward()" aria-label="Retroceder 10s">
+            <i class="bi bi-arrow-counterclockwise"></i>
+          </button>
+          <button type="button" class="vp__btn" (click)="seekForward()" aria-label="Avançar 10s">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
+        }
 
         <div class="vp__volume" (mouseenter)="showVolume.set(true)" (mouseleave)="showVolume.set(false)">
           <button type="button" class="vp__btn" (click)="toggleMute()" [attr.aria-label]="isMuted() ? 'Ativar som' : 'Mudo'">
@@ -78,7 +99,11 @@
           </div>
         </div>
 
-        <span class="vp__time">{{ currentTimeLabel() }} <span class="vp__sep">/</span> {{ durationLabel() }}</span>
+        @if (isLive()) {
+          <span class="vp__live" role="status"><span class="vp__live-dot" aria-hidden="true"></span> AO VIVO</span>
+        } @else {
+          <span class="vp__time">{{ currentTimeLabel() }} <span class="vp__sep">/</span> {{ durationLabel() }}</span>
+        }
       </div>
 
       <div class="vp__group">
@@ -140,10 +165,12 @@
           </div>
         }
 
-        <button type="button" class="vp__btn vp__btn--rate" (click)="loopRates()">
-          <i class="bi bi-speedometer2"></i>
-          <span>{{ playbackRate() === 1 ? '1x' : playbackRate() + 'x' }}</span>
-        </button>
+        @if (!isLive()) {
+          <button type="button" class="vp__btn vp__btn--rate" (click)="loopRates()">
+            <i class="bi bi-speedometer2"></i>
+            <span>{{ playbackRate() === 1 ? '1x' : playbackRate() + 'x' }}</span>
+          </button>
+        }
 
         <button type="button" class="vp__btn" (click)="toggleFullscreen()" [attr.aria-label]="isFullscreen() ? 'Sair de tela cheia' : 'Tela cheia'">
           <i class="bi" [class.bi-fullscreen]="!isFullscreen()" [class.bi-fullscreen-exit]="isFullscreen()"></i>
